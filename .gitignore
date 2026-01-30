@@ -1,0 +1,22 @@
+# InstaGenerate
+.env
+*.pyc
+__pycache__/
+.venv/
+venv/
+env/
+output/reels/*.mp4
+output/captions/*.txt
+assets/cache/videos/*
+assets/cache/music/*
+logs/*.log
+*.log
+.DS_Store
+Thumbs.db
+
+# Keep folder structure
+!output/reels/.gitkeep
+!output/captions/.gitkeep
+!logs/.gitkeep
+!assets/cache/videos/.gitkeep
+!assets/cache/music/.gitkeep

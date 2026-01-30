@@ -1,0 +1,23 @@
+# Instagram Reels Automation - Dependencies
+# Python 3.10+ recommended
+
+# Video creation
+moviepy>=1.0.3
+Pillow>=10.0.0
+numpy>=1.24.0
+scipy>=1.11.0
+
+# Browser automation (Instagram posting)
+playwright>=1.40.0
+
+# Config and utilities
+PyYAML>=6.0.1
+python-dotenv>=1.0.0
+requests>=2.31.0
+
+# Scheduling and time
+schedule>=1.2.0
+pytz>=2023.3
+
+# Optional: for API-based text generation (uncomment if using)
+# openai>=1.0.0
