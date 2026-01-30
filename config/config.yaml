@@ -18,8 +18,8 @@ paths:
 video:
   width: 1080
   height: 1920
-  duration_min: 6
-  duration_max: 9
+  duration_min: 15
+  duration_max: 15
   fps: 30
   text:
     font_size: 72
@@ -29,6 +29,13 @@ video:
     position: center  # center, lower_third
     fade_in_duration: 0.8
     shadow: true
+    # Backdrop behind text only (not video) – text stays readable with any color
+    text_background:
+      enabled: true
+      color: "#1a1a1a"
+      opacity: 0.85
+      padding_x: 80
+      padding_y: 40
 
 posting:
   time_start: "21:00"   # Turkey time
@@ -55,6 +62,8 @@ download:
     - cinematic
     - sad
     - ambient
+  # Jamendo: order by popularity for trending-style music (popularity_week_desc = popular this week)
+  music_order: popularity_week_desc
 
 content:
   # Distribution: emotional, sarcastic, deep, romantic

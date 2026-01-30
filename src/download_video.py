@@ -18,6 +18,15 @@ def _log(msg: str) -> None:
     print(f"[DownloadVideo] {msg}")
 
 
+# Video search keywords by content mood – so background matches text/music
+VIDEO_KEYWORDS_BY_CATEGORY = {
+    "emotional": ["sad", "rain", "night city", "lonely", "emotional", "dark", "walking alone"],
+    "sarcastic": ["city night", "urban", "street lights", "minimal", "cold"],
+    "deep": ["cinematic", "epic", "dramatic", "nature", "contemplative", "sunset"],
+    "romantic": ["romantic", "love", "couple", "sunset", "soft", "dreamy"],
+}
+
+
 def _pexels_search(api_key: str, query: str, orientation: str = "portrait", per_page: int = 15) -> list[dict]:
     """Search Pexels Videos API. Returns list of video dicts with video_files."""
     if not api_key or not api_key.strip():
@@ -102,11 +111,13 @@ def _safe_filename(name: str) -> str:
     return name[:80] or "video"
 
 
-def download_background_video(config: dict | None = None) -> Path:
+def download_background_video(
+    config: dict | None = None,
+    content_category: str | None = None,
+) -> Path:
     """
-    Download one aesthetic background video to cache.
-    Tries Pexels first (portrait), then Pixabay. Reuses cache if already has enough files.
-    Returns path to the downloaded (or existing cached) video file.
+    Download one aesthetic background video to cache (Pexels + Pixabay).
+    content_category: emotional/sarcastic/deep/romantic → video keywords match that mood.
     """
     if config is None:
         config = load_config()
@@ -114,11 +125,13 @@ def download_background_video(config: dict | None = None) -> Path:
     cache_dir = root / config["paths"]["cache_videos"]
     cache_dir.mkdir(parents=True, exist_ok=True)
 
-    # Check cache: use existing if we have at least 3 files (reuse)
     exts = (".mp4", ".mov", ".webm")
     cached = [f for f in cache_dir.iterdir() if f.suffix.lower() in exts]
     download_cfg = config.get("download", {})
-    keywords = download_cfg.get("video_keywords", ["night city", "rain", "cinematic"])
+    if content_category and content_category in VIDEO_KEYWORDS_BY_CATEGORY:
+        keywords = VIDEO_KEYWORDS_BY_CATEGORY[content_category]
+    else:
+        keywords = download_cfg.get("video_keywords", ["night city", "rain", "cinematic"])
     min_dur = download_cfg.get("video_min_duration", 5)
     max_dur = download_cfg.get("video_max_duration", 30)
 

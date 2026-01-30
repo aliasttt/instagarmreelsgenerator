@@ -79,12 +79,12 @@ def run_pipeline(
             "deep": 0.20,
             "romantic": 0.10,
         }
-        sentence = generate_sentence(distribution=content_cfg)
+        sentence, content_category = generate_sentence(distribution=content_cfg, return_category=True)
         result["sentence"] = sentence
 
-        # 2 + 3 + 4. Download background video, download music, create reel (video_creator does download + edit)
+        # 2 + 3 + 4. Download background video, download music (matching mood), create reel
         out_reels.mkdir(parents=True, exist_ok=True)
-        create_reel(sentence, output_path=video_path, config=config)
+        create_reel(sentence, output_path=video_path, config=config, content_category=content_category)
         result["video_path"] = str(video_path)
 
         # 5. Generate caption and hashtags

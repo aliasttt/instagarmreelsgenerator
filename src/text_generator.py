@@ -30,7 +30,8 @@ def _weighted_category(distribution: dict) -> str:
 def generate_sentence(
     distribution: dict | None = None,
     use_api: bool = False,
-) -> str:
+    return_category: bool = False,
+):
     """
     Generate one Turkish viral sentence.
 
@@ -38,9 +39,10 @@ def generate_sentence(
         distribution: e.g. {"emotional": 0.4, "sarcastic": 0.3, "deep": 0.2, "romantic": 0.1}.
                      If None, uses default 40/30/20/10.
         use_api: If True and OPENAI_API_KEY is set, use API for generation (else pool).
+        return_category: If True, return (sentence, category) for music-matching.
 
     Returns:
-        Single sentence, no trailing punctuation, no emojis, no quotes.
+        Single sentence, or (sentence, category) if return_category=True.
     """
     if distribution is None:
         distribution = {
@@ -51,19 +53,21 @@ def generate_sentence(
         }
 
     if use_api and _OPENAI_KEY:
-        return _generate_via_api(distribution)
+        text, cat = _generate_via_api(distribution)
+        return (text, cat) if return_category else text
 
     category = _weighted_category(distribution)
     pool = POOLS.get(category, POOLS["emotional"])
-    return random.choice(pool).strip()
+    sentence = random.choice(pool).strip()
+    return (sentence, category) if return_category else sentence
 
 
-def _generate_via_api(distribution: dict) -> str:
-    """Optional: generate one sentence via OpenAI. Falls back to pool on error."""
+def _generate_via_api(distribution: dict) -> tuple[str, str]:
+    """Optional: generate one sentence via OpenAI. Returns (text, category). Falls back to pool on error."""
+    cat = _weighted_category(distribution)
     try:
         from openai import OpenAI
         client = OpenAI(api_key=_OPENAI_KEY)
-        cat = _weighted_category(distribution)
         prompt = (
             "Generate exactly ONE short viral sentence in Turkish for Instagram Reels. "
             "Style: " + cat + ". "
@@ -78,17 +82,14 @@ def _generate_via_api(distribution: dict) -> str:
             max_tokens=50,
         )
         text = (r.choices[0].message.content or "").strip()
-        # Strip quotes and trailing punctuation if any
         for c in ('"', "'", ".", "!", "?"):
             text = text.rstrip(c)
         if 5 <= len(text.split()) <= 15 and text:
-            return text
+            return (text, cat)
     except Exception:
         pass
-    # Fallback to pool
-    category = _weighted_category(distribution)
-    pool = POOLS.get(category, POOLS["emotional"])
-    return random.choice(pool).strip()
+    pool = POOLS.get(cat, POOLS["emotional"])
+    return (random.choice(pool).strip(), cat)
 
 
 if __name__ == "__main__":
